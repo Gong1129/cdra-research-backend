@@ -554,6 +554,13 @@ def init_research_db():
 
 init_research_db()
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_ROOT = os.environ.get("MODEL_ROOT", BASE_DIR)
+
+print(f"[MODEL] BASE_DIR={BASE_DIR}", flush=True)
+print(f"[MODEL] MODEL_ROOT={MODEL_ROOT}", flush=True)
+print(f"[MODEL] multiclass folders={glob.glob(os.path.join(MODEL_ROOT, 'multiclass*'))[:20]}", flush=True)
+
 MODEL_ROOT = "./../../data/models/distortions/shreevastava2021"
 runtime = PaperNgramRuntime(MODEL_ROOT)
 
@@ -862,6 +869,50 @@ def debug_events(limit: int = 20):
     conn.close()
 
     return rows
+
+@app.get("/debug/model_status")
+def debug_model_status():
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+
+    folders = sorted([
+        p for p in glob.glob(os.path.join(base_dir, "multiclass*"))
+        if os.path.isdir(p)
+    ])
+
+    sample_contents = {}
+    for p in folders[:5]:
+        try:
+            sample_contents[os.path.basename(p)] = sorted(os.listdir(p))[:30]
+        except Exception as e:
+            sample_contents[os.path.basename(p)] = f"error: {e}"
+
+    info = {
+        "cwd": os.getcwd(),
+        "base_dir": base_dir,
+        "model_root_env": os.environ.get("MODEL_ROOT", ""),
+        "db_path": DB_PATH,
+        "multiclass_folder_count": len(folders),
+        "multiclass_folders": [os.path.basename(p) for p in folders[:50]],
+        "sample_contents": sample_contents,
+        "files_in_base_dir": sorted(os.listdir(base_dir))[:100],
+    }
+
+    try:
+        info["runtime_type"] = str(type(runtime))
+    except Exception as e:
+        info["runtime_type"] = f"error: {e}"
+
+    try:
+        info["runtime_model_count"] = len(runtime.models) if hasattr(runtime, "models") else "no_models_attr"
+    except Exception as e:
+        info["runtime_model_count"] = f"error: {e}"
+
+    try:
+        info["runtime_split_folders"] = runtime.split_folders if hasattr(runtime, "split_folders") else "no_split_folders_attr"
+    except Exception as e:
+        info["runtime_split_folders"] = f"error: {e}"
+
+    return info
 
 @app.get("/export/events.csv")
 def export_events_csv():
