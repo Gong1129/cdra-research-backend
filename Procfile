@@ -1,0 +1,1 @@
+web: python -m uvicorn paper_ngram_api:app --host 0.0.0.0 --port $PORT

@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+.env
+research_data.sqlite
+*.sqlite
+*.db
+.ipynb_checkpoints/
+*.ipynb
+paper_ngram_api_backup.py
