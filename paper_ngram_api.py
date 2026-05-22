@@ -561,7 +561,6 @@ print(f"[MODEL] BASE_DIR={BASE_DIR}", flush=True)
 print(f"[MODEL] MODEL_ROOT={MODEL_ROOT}", flush=True)
 print(f"[MODEL] multiclass folders={glob.glob(os.path.join(MODEL_ROOT, 'multiclass*'))[:20]}", flush=True)
 
-MODEL_ROOT = "./../../data/models/distortions/shreevastava2021"
 runtime = PaperNgramRuntime(MODEL_ROOT)
 
 
@@ -890,6 +889,7 @@ def debug_model_status():
         "cwd": os.getcwd(),
         "base_dir": base_dir,
         "model_root_env": os.environ.get("MODEL_ROOT", ""),
+        "model_root_used": MODEL_ROOT,
         "db_path": DB_PATH,
         "multiclass_folder_count": len(folders),
         "multiclass_folders": [os.path.basename(p) for p in folders[:50]],
